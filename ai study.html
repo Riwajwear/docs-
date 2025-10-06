@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Study Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Added Audiowide font for the main heading -->
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --neon-blue: #00f2ff;
+      --neon-purple: #9f55ff;
+      --dark-bg: #0d1117;
+      --dark-purple: #302b63;
+      --darker-purple: #0f0c29;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--darker-purple), var(--dark-bg));
+      color: white;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    
+    @keyframes gradient-pan {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .intro {
+      text-align: center;
+      animation: fadeIn 2s ease-in-out;
+      margin-bottom: 15vh;
+    }
+
+    /* Professional, eye-catching H1 style with new font */
+    .intro h1 {
+      font-family: 'Audiowide', sans-serif; /* New font for a tech look */
+      font-size: 5.5rem; /* Adjusted size for the new font */
+      font-weight: 400; /* Audiowide is naturally bold */
+      margin: 0;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue), #55ffb8, var(--neon-purple));
+      background-size: 250% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient-pan 8s linear infinite;
+    }
+
+    .intro h2 {
+      font-size: 1.5rem;
+      font-weight: 400;
+      margin-top: 10px;
+      color: #ccc;
+      text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+    }
+
+    /* Main chat container - Neon style */
+    .chat-container {
+      width: 90%;
+      max-width: 700px;
+      background: rgba(13, 17, 23, 0.7);
+      backdrop-filter: blur(5px);
+      border-radius: 20px;
+      border: 1px solid var(--neon-blue);
+      box-shadow: 0 0 25px rgba(0, 242, 255, 0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      animation: slideUpFadeIn 0.7s ease-out 2s forwards;
+    }
+
+    .chat-box {
+      padding: 0 15px;
+      overflow-y: auto;
+      font-size: 0.95rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 50vh; 
+      transition: all 0.3s ease-in-out;
+    }
+    
+    .chat-box::-webkit-scrollbar { width: 5px; }
+    .chat-box::-webkit-scrollbar-track { background: transparent; }
+    .chat-box::-webkit-scrollbar-thumb {
+      background: var(--neon-blue);
+      border-radius: 10px;
+    }
+
+    .chat-container.chat-active .chat-box { padding: 15px; }
+
+    .chat-container.is-collapsed .chat-box {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      overflow: hidden;
+    }
+
+    .message {
+      padding: 10px 15px;
+      border-radius: 15px;
+      max-width: 80%;
+      word-wrap: break-word;
+      width: fit-content;
+    }
+
+    .user-message {
+      background: #333;
+      color: #eee;
+      align-self: flex-end;
+      margin-left: auto;
+      border: 1px solid #444;
+    }
+
+    .bot-message {
+      background: var(--dark-purple);
+      color: white;
+      align-self: flex-start;
+      border: 1px solid var(--neon-blue);
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 12px;
+      background: rgba(0,0,0,0.2);
+      align-items: center;
+      border-top: 1px solid transparent;
+      transition: border-top-color 0.3s ease;
+    }
+    
+    .chat-container.chat-active:not(.is-collapsed) .chat-input {
+      border-top-color: var(--neon-blue);
+    }
+
+    .chat-input input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #555;
+      border-radius: 10px;
+      outline: none;
+      margin-right: 10px;
+      background: #222;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    
+    .chat-input input:focus {
+        border-color: var(--neon-blue);
+        box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+    }
+
+    .chat-input input::placeholder { color: #888; }
+
+    .chat-input label {
+      margin-right: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      color: #888;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+     .chat-input label:hover {
+        color: var(--neon-blue);
+        text-shadow: 0 0 8px rgba(0, 242, 255, 0.7);
+     }
+
+    .chat-input button {
+      padding: 10px 16px;
+      border: 1px solid var(--neon-blue);
+      background: transparent;
+      color: var(--neon-blue);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      text-shadow: 0 0 5px rgba(0, 242, 255, 0.7);
+    }
+
+    .chat-input button:hover {
+      background: var(--neon-blue);
+      color: var(--dark-bg);
+      box-shadow: 0 0 20px var(--neon-blue);
+      text-shadow: none;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    @keyframes slideUpFadeIn {
+      from { 
+        opacity: 0;
+        transform: translate(-50%, 20px); 
+      }
+      to { 
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="intro">
+    <h1>Hi Dear I'm Umer</h1>
+    <h2>Your's AI Study Assistant!<br>How Can I Help You Today?</h2>
+  </div>
+
+  <div class="chat-container">
+    <div class="chat-box" id="chatBox"></div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Type your question here...">
+      <label for="fileUpload">📎</label>
+      <input type="file" id="fileUpload" style="display:none;">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const userInput = document.getElementById("userInput");
+    const chatBox = document.getElementById("chatBox");
+    const chatContainer = document.querySelector(".chat-container");
+
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (message === "") return;
+      
+      if (!chatContainer.classList.contains("chat-active")) {
+        chatContainer.classList.add("chat-active");
+      }
+
+      if (chatContainer.classList.contains("is-collapsed")) {
+        chatContainer.classList.remove("is-collapsed");
+      }
+
+      appendMessage(message, "user");
+      userInput.value = "";
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch("https://umernaveed.app.n8n.cloud/webhook-test/Della", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: message })
+        });
+
+        if (!res.ok) {
+            throw new Error(`Server responded with status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        const botReply = data.answer || "Sorry, I didn't get a response.";
+        appendMessage(botReply, "bot");
+
+      } catch (err)
+ {
+        console.error("Error:", err);
+        appendMessage("Error: Could not connect to the AI assistant.", "bot");
+      }
+    }
+
+    function appendMessage(text, sender) {
+        const messageElement = document.createElement("div");
+        messageElement.className = `message ${sender}-message`;
+        messageElement.innerText = text;
+        chatBox.appendChild(messageElement);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    userInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    userInput.addEventListener("focus", () => {
+      if (chatContainer.classList.contains("is-collapsed")) {
+        chatContainer.classList.remove("is-collapsed");
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      const isChatActive = chatContainer.classList.contains("chat-active");
+      const isCollapsed = chatContainer.classList.contains("is-collapsed");
+      const isClickOutside = !chatContainer.contains(event.target);
+
+      if (isChatActive && !isCollapsed && isClickOutside) {
+        chatContainer.classList.add("is-collapsed");
+      }
+    });
+  </script>
+</body>
+</html>
+
